@@ -22,7 +22,9 @@ export default function Chat(){
         connectToWs();
     }, []);
     function connectToWs() {
-        const ws = new WebSocket('ws://localhost:4040');
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:4040';
+        const wsUrl = apiUrl.replace(/^http/, 'ws');
+        const ws = new WebSocket(wsUrl);
         setWs(ws);
         ws.addEventListener('message', handleMessage);
         ws.addEventListener('close', () => {

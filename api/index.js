@@ -157,7 +157,7 @@ app.post('/register', async (req, res) => {
     }
 });
 
-const server = app.listen(4040);
+const server = app.listen(process.env.PORT || 4040);
 
     function notifyAboutOnlinePeople() {
         [...wss.clients].forEach(client => {
@@ -243,6 +243,3 @@ wss.on('connection', (connection, req)=> {
 });
  
 
-// Database password: ag5TTUnOEs8jY2Bp
-// Host server on localhost:4040
-//app.listen(4040);

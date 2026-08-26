@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: "/csun-mern-chat-app/",
+  base: "/csun-chat-app/",
 })

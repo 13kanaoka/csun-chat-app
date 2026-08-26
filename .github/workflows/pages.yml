@@ -35,6 +35,8 @@ jobs:
 
       - name: Build client
         working-directory: ./client
+        env:
+          VITE_API_URL: ${{ vars.VITE_API_URL }}
         run: yarn build
 
       - name: Upload GitHub Pages artifact
