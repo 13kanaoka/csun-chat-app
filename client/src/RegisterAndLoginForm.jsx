@@ -2,8 +2,6 @@ import {useState, useContext} from "react";
 import axios from "axios"
 import {UserContext} from "./UserContext.jsx";
 import './index.css'
-import google from './assets/google.svg';
-import apple from './assets/apple.svg';
 
 export default function RegisterAndLoginForm() {
     const [username, setUsername] = useState('');
@@ -50,34 +48,7 @@ export default function RegisterAndLoginForm() {
     // Login/Register page HTML/CSS
     return (
         <div className="login-container">
-            
 
-            <h2 className="form-title">Log in with</h2>
-
-            
-            <div className="social-login">
-
-
-                <button className="social-button">
-
-                    <img src= {google} alt="Google" className="social-icon" />
-                        Google
-
-                 </button>
-
-                <button className="social-button">
-
-                        <img src={apple} alt="Apple" className="social-icon" />
-                        Apple
-
-                </button>
-
-
-            </div>
-
-            <p className="separator"><span>or</span></p>
-
-            
             <form  action="#" className="login-form" onSubmit={handleSubmit}>
                
                <div className="input-wrapper">
