@@ -22,7 +22,7 @@ export default function RegisterAndLoginForm() {
         try{
         const {data} = await axios.post(url, {username, password});
         setLoggedInUsername(username);
-        setId(data.id);
+        setId(data.userId);
         }
 
         catch(error){
