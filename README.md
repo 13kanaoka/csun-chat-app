@@ -1,6 +1,7 @@
 # csun-mern-chat-app
-Real-time MERN-stack chat app designed for and by CSUN students
+Live Demo: [click here](https://13kanaoka.github.io/csun-chat-app/)
 
+## Real-time MERN-stack chat app designed for and by CSUN students
 To access, first go into terminal and initialize the frontend
 
 For frontend: cd client -> yarn install -> yarn dev
