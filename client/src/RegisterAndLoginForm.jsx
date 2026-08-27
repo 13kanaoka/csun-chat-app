@@ -96,8 +96,22 @@ export default function RegisterAndLoginForm() {
                 </div>
 
 
-            </form> 
+            </form>
 
+            <div className="mt-4 text-center text-sm text-gray-600 bg-white/80 rounded-lg px-4 py-3">
+                <p className="font-semibold text-gray-800">Here for a demo?</p>
+                <p className="mb-1">Use logins:</p>
+                <div className="flex justify-center gap-8">
+                    <div>
+                        <div className="font-mono font-semibold text-gray-800">demo1</div>
+                        <div className="font-mono">demo</div>
+                    </div>
+                    <div>
+                        <div className="font-mono font-semibold text-gray-800">demo2</div>
+                        <div className="font-mono">demo</div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     );
