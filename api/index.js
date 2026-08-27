@@ -104,24 +104,26 @@ app.post('/login', async (req, res) => {
     // Retrieve username and password input by user
     const {username, password} = req.body;
 
-    // Find user in database; if not found, do nothing
+    // Find user in database
     const foundUser = await User.findOne({username});
 
-    // Login user
-    if (foundUser) {
-        // Decrypt hashed password
-        const passOk = bcrypt.compareSync(password, foundUser.password);
+    // Decrypt hashed password (only if a user was found, to avoid comparing against undefined)
+    const passOk = foundUser && bcrypt.compareSync(password, foundUser.password);
 
-        // If password matches, sign JSON Web Token and respond to front end with 
-        //  a cookie containing token that 'logs in' user
-        if (passOk) {
-            jwt.sign({userId:foundUser._id, username}, jwtSecret, {}, (err, token) => {
-                res.cookie('token', token, {sameSite: 'none', secure: true}).json({
-                    userId: foundUser._id, username,
-                });
-            });
-        }
+    // If either the username doesn't exist or the password doesn't match, respond with
+    //  the same generic error so we don't reveal which one was wrong
+    if (!foundUser || !passOk) {
+        res.status(401).json({message: 'Invalid username or password'});
+        return;
     }
+
+    // Sign JSON Web Token and respond to front end with a cookie containing token
+    //  that 'logs in' user
+    jwt.sign({userId:foundUser._id, username}, jwtSecret, {}, (err, token) => {
+        res.cookie('token', token, {sameSite: 'none', secure: true}).json({
+            userId: foundUser._id, username,
+        });
+    });
 });
 
 // Form submitted from RegisterAndLoginForm.jsx when user registers
@@ -150,10 +152,13 @@ app.post('/register', async (req, res) => {
             });
         });
     } catch(err) {
-        // If User create promise rejects (fails to create User), then respond with
-        //  HTTP status '500 Internal Server Error'
-        if (err) throw err;
-        res.status(500).json('error');
+        // Mongo duplicate key error: username is already taken
+        if (err.code === 11000) {
+            res.status(409).json({message: 'Username already exists'});
+            return;
+        }
+        // Any other failure creating the user
+        res.status(500).json({message: 'Something went wrong, please try again'});
     }
 });
 

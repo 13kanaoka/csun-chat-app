@@ -7,12 +7,14 @@ export default function RegisterAndLoginForm() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('register');
+    const [errorMessage, setErrorMessage] = useState('');
     const {setUsername:setLoggedInUsername, setId} = useContext(UserContext);
 
     // Event when user submits credentials
     async function handleSubmit(ev) {
         // Prevent page from refreshing
         ev.preventDefault();
+        setErrorMessage('');
 
         // Use axios to send HTTP request to backend /register or /login and
         //  responds with a JWT cookie and JSON. App saves username and id globally
@@ -26,9 +28,9 @@ export default function RegisterAndLoginForm() {
         }
 
         catch(error){
-            console.error("Error during submission: ", error);
+            setErrorMessage(error.response?.data?.message || 'Something went wrong, please try again');
         };
-        
+
     }
 
     // Login/Register page HTML/CSS
@@ -61,7 +63,11 @@ export default function RegisterAndLoginForm() {
                 <i className="material-symbols-rounded">lock</i>
 
                </div>
-               
+
+                {errorMessage && (
+                    <p className="text-red-600 text-sm text-center mb-2">{errorMessage}</p>
+                )}
+
                 <button className="login-button">
                     {isLoginOrRegister === 'register' ? 'Register' : 'Login'}
                 </button>
@@ -73,11 +79,11 @@ export default function RegisterAndLoginForm() {
 
 
                         <p className="signup-text">
-                        Already a member? 
-                        <a href="#" onClick={() => setIsLoginOrRegister('login')}>
+                        Already a member?
+                        <a href="#" onClick={() => {setIsLoginOrRegister('login'); setErrorMessage('');}}>
                             Login here
                         </a>
-                        </p>    
+                        </p>
 
 
                     )}
@@ -86,7 +92,7 @@ export default function RegisterAndLoginForm() {
 
                         <p className="signup-text">
                             Don't have an account?
-                            <a href="#" onClick={() => setIsLoginOrRegister('register')}>
+                            <a href="#" onClick={() => {setIsLoginOrRegister('register'); setErrorMessage('');}}>
                                 Register
                             </a>
                         </p>
