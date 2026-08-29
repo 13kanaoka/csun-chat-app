@@ -18,6 +18,8 @@ export default function Account({onBack, onLogout}) {
     const [avatarMessage, setAvatarMessage] = useState('');
 
     const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleteMessage, setDeleteMessage] = useState('');
 
     async function saveAvatar(avatarValue) {
         setAvatarMessage('');
@@ -94,6 +96,16 @@ export default function Account({onBack, onLogout}) {
         setDarkMode(next);
         localStorage.setItem('darkMode', next);
         document.documentElement.classList.toggle('dark', next);
+    }
+
+    async function handleDeleteAccount() {
+        setDeleteMessage('');
+        try {
+            await axios.delete('/profile');
+            onLogout();
+        } catch (err) {
+            setDeleteMessage(err.response?.data?.message || 'Could not delete account');
+        }
     }
 
     return (
@@ -191,10 +203,34 @@ export default function Account({onBack, onLogout}) {
 
                 <button
                     onClick={onLogout}
-                    className="w-full text-center text-sm bg-white dark:bg-gray-800 text-red-600 rounded-lg p-3"
+                    className="w-full text-center text-sm bg-white dark:bg-gray-800 text-red-600 rounded-lg p-3 mb-4"
                 >
                     Log out
                 </button>
+
+                {!confirmDelete ? (
+                    <button
+                        onClick={() => setConfirmDelete(true)}
+                        className="w-full text-center text-sm text-red-600 underline"
+                    >
+                        Delete account
+                    </button>
+                ) : (
+                    <div className="bg-white dark:bg-gray-800 rounded-lg p-3">
+                        <p className="text-sm text-gray-700 dark:text-gray-200 mb-2">
+                            This permanently deletes your account and all your messages. Are you sure?
+                        </p>
+                        {deleteMessage && <p className="text-sm text-red-600 mb-2">{deleteMessage}</p>}
+                        <div className="flex gap-2">
+                            <button onClick={handleDeleteAccount} className="flex-1 bg-red-600 text-white text-sm rounded-sm px-3 py-1">
+                                Yes, delete
+                            </button>
+                            <button onClick={() => setConfirmDelete(false)} className="flex-1 bg-gray-200 dark:bg-gray-700 dark:text-gray-100 text-sm rounded-sm px-3 py-1">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                )}
 
             </div>
         </div>

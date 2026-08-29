@@ -172,6 +172,22 @@ app.put('/profile/password', async (req, res) => {
     }
 });
 
+// Permanently delete the logged-in user's account and their messages
+app.delete('/profile', async (req, res) => {
+    try {
+        const userData = await getUserDataFromRequest(req);
+
+        await Message.deleteMany({
+            $or: [{sender: userData.userId}, {recipient: userData.userId}],
+        });
+        await User.findByIdAndDelete(userData.userId);
+
+        res.cookie('token', '', {sameSite: 'none', secure: true}).json({message: 'Account deleted'});
+    } catch (err) {
+        res.status(401).json({message: 'Not logged in'});
+    }
+});
+
 app.post('/logout', (req,res) => {
     res.cookie('token', '', {sameSite:'none', secure:true}).json('ok');
 });

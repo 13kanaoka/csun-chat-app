@@ -176,7 +176,7 @@ export default function Chat(){
     }
 
     return (
-        <div className="flex h-screen"> 
+        <div className="flex h-screen -mx-[0.6rem]">
             <div className="overflow-y-auto bg-white dark:bg-gray-800 w-1/3 flex flex-col">
             <div className="flex-grow">
             <Logo />
