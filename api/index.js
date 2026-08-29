@@ -72,26 +72,103 @@ app.get('/messages/:userId', async (req,res) => {
 });
 
 app.get('/people', async (req,res) => {
-    const users = await User.find({}, {'_id':1,username:1});
+    const users = await User.find({}, {'_id':1,username:1,avatar:1});
     res.json(users);
 });
 
 // Form submitted from UserContext.jsx 
-app.get('/profile', (req, res) => {
+app.get('/profile', async (req, res) => {
     // Check if user is storing login cookie containing token 
     const token = req.cookies?.token;
 
     // If user has cookie, verify using JSON Web Token secrey key and 
     //  respond to front end with user data {username, userID}
     if (token) {
-        jwt.verify(token, jwtSecret, {}, (err, userData) => {
+        jwt.verify(token, jwtSecret, {}, async (err, userData) => {
             if (err) throw err;
-            res.json(userData);
+            const user = await User.findById(userData.userId, {username:1, avatar:1});
+            res.json({userId: userData.userId, username: user.username, avatar: user.avatar})
         });
     } else {
        // If user has no token, then they are not logged in and respond 
        //  to front end with HTTP status of '401 Unauthorized'
        res.status(401).json('no token'); 
+    }
+});
+
+app.put('/profile/avatar', async (req, res) => {
+    try {
+        const userData = await getUserDataFromRequest(req);
+        const {avatar} = req.body;
+
+        // reject anything asurdly so we don't bloat the database
+        if (typeof avatar === 'string' && avatar.length > 300 * 1024) {
+            res.status(413).json({message: 'Image is too large'});
+            return;
+        }
+
+        await User.findByIdAndUpdate(userData.userId, {avatar: avatar || ''});
+        res.json({avatar: avatar || ''});
+    } catch (err) {
+        res.status(401).json({message: 'Not logged in'});
+    }
+});
+
+app.put('/profile/username', async (req, res) => {
+    try {
+        const userData = await getUserDataFromRequest(req);
+        const {username} = req.body
+
+        if (!username || !username.trim()) {
+            res.status(400).json({message: 'Username cannot be empty'});
+            return;
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            userData.userId,
+            {username: username.trim()},
+            {new: true, runValidators: true}
+        );
+
+        jwt.sign({userId: updatedUser._id, username: updatedUser.username}, jwtSecret, {}, (err, token) => {
+            if (err) throw err;
+            res.cookie('token', token, {sameSite: 'none', secure: true}).json({
+                userId: updatedUser._id, username: updatedUser.username,
+            });
+        });
+    } catch (err) {
+        if (err.code === 11000) {
+            res.status(409).json({message: 'Username already exists'});
+            return;
+        }
+        res.status(400).json({message: 'Could not update username'})
+    }
+});
+
+app.put('/profile/password', async (req, res) => {
+    try {
+        const userData = await getUserDataFromRequest(req);
+        const {currentPassword, newPassword} = req.body;
+
+        if (!currentPassword || !newPassword) {
+            res.status(400).json({message: 'Both current and new password are required'});
+            return;
+        }
+
+        const user = await User.findById(userData.userId);
+        const currentOk = bcrypt.compareSync(currentPassword, user.password);
+
+        if (!currentOk) {
+            res.status(401).json({message: "current password is incorrect"});
+            return;
+        }
+
+        user.password = bcrypt.hashSync(newPassword, bcryptSalt);
+        await user.save();
+
+        res.json({message: 'Password updated'});
+    } catch (err) {
+        res.status(400).json({message: 'Could not update password'});
     }
 });
 
@@ -121,7 +198,7 @@ app.post('/login', async (req, res) => {
     //  that 'logs in' user
     jwt.sign({userId:foundUser._id, username}, jwtSecret, {}, (err, token) => {
         res.cookie('token', token, {sameSite: 'none', secure: true}).json({
-            userId: foundUser._id, username,
+            userId: foundUser._id, username, avatar: foundUser.avatar,
         });
     });
 });
@@ -148,7 +225,7 @@ app.post('/register', async (req, res) => {
         jwt.sign({userId: createdUser._id, username}, jwtSecret, {}, (err, token) => {
             if (err) throw err;
             res.cookie('token', token, {sameSite: 'none', secure: true}).status(201).json({
-                userId: createdUser._id, username,
+                userId: createdUser._id, username, avatar: createdUser.avatar,
             });
         });
     } catch(err) {
@@ -167,7 +244,7 @@ const server = app.listen(process.env.PORT || 4040);
     function notifyAboutOnlinePeople() {
         [...wss.clients].forEach(client => {
             client.send(JSON.stringify({
-                online: [...wss.clients].map(c => ({userId:c.userId,username:c.username})), 
+                online: [...wss.clients].map(c => ({userId:c.userId, username:c.username, avatar:c.avatar})), 
             }));
         });
     }
@@ -199,11 +276,13 @@ wss.on('connection', (connection, req)=> {
         if(tokenCookieString){
             const token = tokenCookieString.split('=')[1];
             if(token){
-                jwt.verify(token, jwtSecret, {}, (err, userData) => {
+                jwt.verify(token, jwtSecret, {}, async (err, userData) => {
                     if(err) throw err;
-                    const{userId, username} = userData;
-                    connection.userId = userId;
-                    connection.username = username;
+                    const user = await User.findById(userData.userId, {username:1, avatar:1});
+                    connection.userId = userData.userId;
+                    connection.username = user.username;
+                    connection.avatar = user.avatar;
+                    notifyAboutOnlinePeople();
                 });
             }
         }

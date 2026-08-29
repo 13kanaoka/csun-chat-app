@@ -8,7 +8,7 @@ export default function RegisterAndLoginForm() {
     const [password, setPassword] = useState('');
     const [isLoginOrRegister, setIsLoginOrRegister] = useState('register');
     const [errorMessage, setErrorMessage] = useState('');
-    const {setUsername:setLoggedInUsername, setId} = useContext(UserContext);
+    const {setUsername:setLoggedInUsername, setId, setAvatar} = useContext(UserContext);
 
     // Event when user submits credentials
     async function handleSubmit(ev) {
@@ -25,6 +25,7 @@ export default function RegisterAndLoginForm() {
         const {data} = await axios.post(url, {username, password});
         setLoggedInUsername(username);
         setId(data.userId);
+        setAvatar(data.avatar || '');
         }
 
         catch(error){
@@ -79,10 +80,7 @@ export default function RegisterAndLoginForm() {
 
 
                         <p className="signup-text">
-                        Already a member?
-                        <a href="#" onClick={() => {setIsLoginOrRegister('login'); setErrorMessage('');}}>
-                            Login here
-                        </a>
+                        Already a member? <a href="#" onClick={() => {setIsLoginOrRegister('login'); setErrorMessage('');}}>Login here</a>
                         </p>
 
 
@@ -91,10 +89,7 @@ export default function RegisterAndLoginForm() {
 
 
                         <p className="signup-text">
-                            Don't have an account?
-                            <a href="#" onClick={() => {setIsLoginOrRegister('register'); setErrorMessage('');}}>
-                                Register
-                            </a>
+                            Don't have an account? <a href="#" onClick={() => {setIsLoginOrRegister('register'); setErrorMessage('');}}>Register</a>
                         </p>
 
 

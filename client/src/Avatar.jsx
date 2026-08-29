@@ -1,3 +1,5 @@
+import avatarPresets from "./avatarPresets";
+
 export default function Avatar({userId,username, online}){
     username = username || '';
 
@@ -7,9 +9,20 @@ export default function Avatar({userId,username, online}){
     const colorIndex = userIdBase10 % colors.length;
     const color = colors[colorIndex];
 
+    // avatar can be: a "preset:<id>" string, an uploaded photo (data url), or empty
+    const preset = typeof avatar === 'string' && avatar.startsWith('preset:') 
+        ? avatarPresets.find(p => String(p.id) === avatar.split(':')[1])
+        : null;
+
     return(
-        <div className = {"w-8 h-8 relative rounded-full flex items-center " + color}>
-            <div className="text-center w-full opacity-70">{username[0]}</div>
+        <div className = {"w-8 h-8 relative rounded-full flex items-center justify-center overflow-hidden " + (preset ? preset.color : color)}>
+            {preset ? (
+                <span className="text-center w-full">{preset.emoji}</span>
+            ) : avatar ? (
+                <img src={avatar} alt={username} className="w-full h-full object-cover" />
+            ) : (
+                <div className="text-center w-full opacity-70">{username[0]}</div>
+            )}
             {online &&  (
                 <div className = "absolute w-3 h-3 bg-green-400 bottom-0 right-0 rounded-full border border-white"></div>
             )}

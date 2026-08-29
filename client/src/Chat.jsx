@@ -5,6 +5,7 @@ import { UserContext } from "./UserContext";
 import uniqBy from "lodash/uniqBy";
 import axios  from "axios";
 import Contact from "./Contact";
+import Account from "./Account";
 import './indexTwo.css'
 
 
@@ -15,7 +16,8 @@ export default function Chat(){
     const[selectedUserId, setSelectedUserId] = useState(null);
     const[newMessageText, setNewMessageText] = useState('');
     const[messages, setMessages] = useState([]);
-    const{username, id, setId, setUsername} = useContext(UserContext);
+    const{username, id, setId, setUsername, avatar} = useContext(UserContext);
+    const[showAccount, setShowAccount] = useState(false);
     const divUnderMessages = useRef();
 
     useEffect(() =>{
@@ -34,14 +36,11 @@ export default function Chat(){
             }, 1000);
         });
     }
-    function showOnlinePeople(peopleArray){   //
+    function showOnlinePeople(peopleArray){
         const people = {};
-        // peopleArray.forEach(({userId, username}) => {
-        //     people[userId] = username;
-        // });    
-        peopleArray.forEach(({userId, username}) => {
+        peopleArray.forEach(({userId, username, avatar}) => {
             if (userId && username && username.trim() !== '.') {
-                people[userId] = username;
+                people[userId] = {username, avatar};
             }
         });
         setOnlinePeople(people);
@@ -170,11 +169,15 @@ export default function Chat(){
     
       
 
-    const messagesWithoutDupes = uniqBy(messages, '_id'); 
-    
-    return (  
+    const messagesWithoutDupes = uniqBy(messages, '_id');
+
+    if (showAccount) {
+        return <Account onBack={() => setShowAccount(false)} onLogout={logout} />;
+    }
+
+    return (
         <div className="flex h-screen"> 
-            <div className="overflow-y-auto bg-white w-1/3 flex flex-col">
+            <div className="overflow-y-auto bg-white dark:bg-gray-800 w-1/3 flex flex-col">
             <div className="flex-grow">
             <Logo />
             {Object.keys(onlinePeopleExclOurUser).map(userId => (
@@ -182,7 +185,8 @@ export default function Chat(){
                 key={userId}
                 id={userId}
                 online={true}
-                username={onlinePeopleExclOurUser[userId]}
+                username={onlinePeopleExclOurUser[userId].username}
+                avatar={onlinePeopleExclOurUser[userId].avatar}
                 onClick={() => setSelectedUserId(userId)}
                 selected={userId === selectedUserId}
                 />
@@ -193,29 +197,32 @@ export default function Chat(){
                     id={userId}
                     online={false}
                     username={offlinePeople[userId].username}
+                    avatar={offlinePeople[userId].avatar}
                     onClick={() => setSelectedUserId(userId)}
                     selected={userId === selectedUserId} />
                 ))}
             </div>
-                <div className="p-2 text-center flex items-center justify-center">
-                <span className="mr-2 text-sm text-gray-600 flex items-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                    </svg>
+                <div className="p-2 text-center flex items-center justify-center gap-2">
+                <span className="mr-2 text-sm text-gray-600 dark:text-gray-300 flex items-center gap-2">
+                    <Avatar userId={id} username={username} avatar={avatar} online={true} />
                     {username}
                 </span>
-                <button 
+                <button
+                onClick={() => setShowAccount(true)}
+                title="Account settings"
+                className="text-sm bg-blue-100 py-1 px-2 text-gray-500 border rounded-sm">⚙️</button>
+                <button
                 onClick={logout}
                 className="text-sm bg-blue-100 py-1 px-2 text-gray-500 border rounded-sm">logout</button>
                 </div>
             </div>
           
             
-            <div className="flex flex-col bg-blue-50 w-2/3 p-2">
+            <div className="flex flex-col bg-blue-50 dark:bg-gray-900 w-2/3 p-2">
                 <div className="flex-grow">
                     {!selectedUserId && (
                         <div className="flex h-full flex-grow items-center justify-center">
-                            <div className="text-gray-300">&larr; Select a person from the sidebar</div>
+                            <div className="text-gray-300 dark:text-gray-600">&larr; Select a person from the sidebar</div>
                         </div>
                     )}
                     {!!selectedUserId && (
@@ -223,7 +230,7 @@ export default function Chat(){
                             <div className="overflow-y-scroll absolute top-0 left-0 right-0 bottom-2">
                                 {messagesWithoutDupes.map(message => (
                                     <div key = {message._id} className={(message.sender === id ? 'text-right': 'text-left')}>
-                                        <div className={"text-left inline-block p-2 my-2 rounded-md text-sm " +(message.sender === id ? 'bg-[#CE1126] text-white':'bg-white text-gray-500')}>
+                                        <div className={"text-left inline-block p-2 my-2 rounded-md text-sm " +(message.sender === id ? 'bg-[#CE1126] text-white':'bg-white text-gray-500 dark:bg-gray-700 dark:text-gray-200')}>
                                             {message.text}
                                             {message.file && (
                                                 <div className="">
@@ -249,7 +256,7 @@ export default function Chat(){
                             value={newMessageText}
                             onChange={ev => setNewMessageText(ev.target.value)}
                             placeholder= "Type your message here"
-                            className="bg-white flex-grow border rounded-sm p-2" />
+                            className="bg-white flex-grow border rounded-sm p-2 dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" />
 
                         <label type="button" className='bg-blue-100 p-2 text-gray-600 cursor-pointer rounded-sm border border-blue-300'>
                             <input type="file" className="hidden" onChange={sendFile}/>
