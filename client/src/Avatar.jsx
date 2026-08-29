@@ -15,14 +15,16 @@ export default function Avatar({userId,username, online, avatar}){
         : null;
 
     return(
-        <div className = {"w-8 h-8 relative rounded-full flex items-center justify-center overflow-hidden " + (preset ? preset.color : color)}>
-            {preset ? (
-                <span className="text-center w-full">{preset.emoji}</span>
-            ) : avatar ? (
-                <img src={avatar} alt={username} className="w-full h-full object-cover" />
-            ) : (
-                <div className="text-center w-full opacity-70">{username[0]}</div>
-            )}
+        <div className="w-8 h-8 relative">
+            <div className={"w-full h-full rounded-full flex items-center justify-center overflow-hidden " + (preset ? preset.color : color)}>
+                {preset ? (
+                    <span className="text-center w-full">{preset.emoji}</span>
+                ) : avatar ? (
+                    <img src={avatar} alt={username} className="w-full h-full object-cover" />
+                ) : (
+                    <div className="text-center w-full opacity-70">{username[0]}</div>
+                )}
+            </div>
             {online &&  (
                 <div className = "absolute w-3 h-3 bg-green-400 bottom-0 right-0 rounded-full border border-white"></div>
             )}

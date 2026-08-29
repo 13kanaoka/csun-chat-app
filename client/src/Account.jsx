@@ -109,8 +109,10 @@ export default function Account({onBack, onLogout}) {
                 {/* Avatar */}
                 <div className="bg-white dark:bg-gray-800 rounded-lg p-4 mb-4">
                     <div className="flex items-center gap-3 mb-3">
-                        <div className="scale-150 origin-left ml-2">
-                            <Avatar userId={id} username={username} avatar={avatar} online={true} />
+                        <div className="w-12 h-12 flex items-center justify-center">
+                            <div className="scale-150">
+                                <Avatar userId={id} username={username} avatar={avatar} online={true} />
+                            </div>
                         </div>
                         <div>
                             <p className="font-semibold text-gray-800 dark:text-gray-100">{username}</p>
@@ -143,7 +145,7 @@ export default function Account({onBack, onLogout}) {
                         onClick={toggleDarkMode}
                         className={"w-11 h-6 rounded-full relative transition-colors " + (darkMode ? 'bg-blue-600' : 'bg-gray-300')}
                     >
-                        <span className={"absolute top-0.5 w-5 h-5 bg-white rounded-full transition-transform " + (darkMode ? 'translate-x-5' : 'translate-x-0.5')}></span>
+                        <span className={"absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full transition-transform " + (darkMode ? 'translate-x-5' : 'translate-x-0')}></span>
                     </button>
                 </div>
 
