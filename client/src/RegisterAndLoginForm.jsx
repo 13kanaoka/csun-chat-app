@@ -104,12 +104,12 @@ export default function RegisterAndLoginForm() {
                 <p className="mb-1">Use logins:</p>
                 <div className="flex justify-center gap-8">
                     <div>
-                        <div className="font-mono font-semibold text-gray-800">demo1</div>
-                        <div className="font-mono">demo</div>
+                        <div className="font-mono font-semibold text-gray-800">U: demo1</div>
+                        <div className="font-mono">P: pass</div>
                     </div>
                     <div>
                         <div className="font-mono font-semibold text-gray-800">demo2</div>
-                        <div className="font-mono">demo</div>
+                        <div className="font-mono">pass</div>
                     </div>
                 </div>
             </div>
