@@ -18,7 +18,10 @@ export default function Chat(){
     const[messages, setMessages] = useState([]);
     const{username, id, setId, setUsername, avatar} = useContext(UserContext);
     const[showAccount, setShowAccount] = useState(false);
+    const[sidebarWidth, setSidebarWidth] = useState(33); // percent
+    const[isDragging, setIsDragging] = useState(false);
     const divUnderMessages = useRef();
+    const containerRef = useRef();
 
     useEffect(() =>{
         connectToWs();
@@ -140,6 +143,35 @@ export default function Chat(){
         }
     }, [messages]);
 
+    // Handle dragging the divider between the sidebar and the chat pane
+    function startDragging(ev) {
+        ev.preventDefault();
+        setIsDragging(true);
+    }
+
+    useEffect(() => {
+        if (!isDragging) return;
+
+        function handleMouseMove(ev) {
+            if (!containerRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            let newWidthPercent = ((ev.clientX - rect.left) / rect.width) * 100;
+            newWidthPercent = Math.min(60, Math.max(20, newWidthPercent));
+            setSidebarWidth(newWidthPercent);
+        }
+
+        function handleMouseUp() {
+            setIsDragging(false);
+        }
+
+        window.addEventListener('mousemove', handleMouseMove);
+        window.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [isDragging]);
+
     useEffect(() => {
         axios.get('/people').then(res => {
             const offlinePeopleArr = res.data
@@ -176,8 +208,8 @@ export default function Chat(){
     }
 
     return (
-        <div className="flex h-screen -mx-[0.6rem]">
-            <div className="overflow-y-auto bg-white dark:bg-gray-800 w-1/3 flex flex-col">
+        <div ref={containerRef} className={"flex h-screen -mx-[0.6rem] " + (isDragging ? 'select-none cursor-col-resize' : '')}>
+            <div className="overflow-y-auto bg-white dark:bg-gray-800 flex flex-col" style={{width: sidebarWidth + '%'}}>
             <div className="flex-grow">
             <Logo />
             {Object.keys(onlinePeopleExclOurUser).map(userId => (
@@ -216,9 +248,13 @@ export default function Chat(){
                 className="text-sm bg-blue-100 py-1 px-2 text-gray-500 border rounded-sm">logout</button>
                 </div>
             </div>
-          
-            
-            <div className="flex flex-col bg-blue-50 dark:bg-gray-900 w-2/3 p-2">
+
+            <div
+                onMouseDown={startDragging}
+                className="w-1 cursor-col-resize bg-gray-200 dark:bg-gray-700 hover:bg-blue-400 dark:hover:bg-blue-500 transition-colors"
+            ></div>
+
+            <div className="flex flex-col bg-blue-50 dark:bg-gray-900 flex-1 p-2">
                 <div className="flex-grow">
                     {!selectedUserId && (
                         <div className="flex h-full flex-grow items-center justify-center">
