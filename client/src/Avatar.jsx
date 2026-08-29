@@ -1,6 +1,6 @@
 import avatarPresets from "./avatarPresets";
 
-export default function Avatar({userId,username, online}){
+export default function Avatar({userId,username, online, avatar}){
     username = username || '';
 
     const colors =['bg-teal-200', 'bg-red-200', 'bg-green-200', 'bg-purple-200',
