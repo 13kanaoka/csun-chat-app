@@ -70,7 +70,7 @@ export default function RegisterAndLoginForm() {
                 )}
 
                 <button className="login-button">
-                    {isLoginOrRegister === 'register' ? 'Register' : 'Login'}
+                    {isLoginOrRegister === 'register' ? 'Register' : 'Log in'}
                 </button>
                 
             
@@ -80,7 +80,7 @@ export default function RegisterAndLoginForm() {
 
 
                         <p className="signup-text">
-                        Already a member? <a href="#" onClick={() => {setIsLoginOrRegister('login'); setErrorMessage('');}}>Login here</a>
+                        Already a member? <a href="#" onClick={() => {setIsLoginOrRegister('login'); setErrorMessage('');}}>Log in here</a>
                         </p>
 
 
