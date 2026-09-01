@@ -111,8 +111,8 @@ export default function RegisterAndLoginForm() {
                         <div className="font-mono font-semibold text-gray-800">demo2</div>
                         <div className="font-mono">pass</div>
                     </div>
-                    <p className="font-semibold text-gray-800">**Demo may take 30-60s to build</p>
                 </div>
+                <p className="font-semibold text-gray-800">**Demo may take 30-60s to build</p>
             </div>
 
         </div>
